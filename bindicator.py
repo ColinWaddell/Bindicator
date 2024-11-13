@@ -1,48 +1,51 @@
 import automationhat
 from datetime import datetime, time
 
-RECYCLING = 0
-WASTE = 1
-GARDEN = 2
+# Channel each light is wired to
+RECYCLING_CHANNEL = 0
+WASTE_CHANNEL = 1
+GARDEN_CHANNEL = 2
 
-GARDEN_WEEKS = (11, 49) # start and end week numbers
+# Start and end week numbers for garden waste collection
+GARDEN_WASTE_WEEKS = (11, 49) 
 
 def is_after_lunchtime_wednesday_or_before_lunchtime_friday():
+    """Checks if it's after Wednesday lunchtime or before Friday lunchtime."""
     now = datetime.now()
-    current_day = now.weekday()
-    current_time = now.time()
-    
-    # Define lunchtime as 12:00 PM
     lunchtime = time(12, 0)
-
-    # Check conditions
-    if (current_day == 2 and current_time >= lunchtime):  # Wednesday afternoon onwards
+    
+    if now.weekday() == 2 and now.time() >= lunchtime:  # Wednesday afternoon
         return True
-    elif (current_day == 4 and current_time < lunchtime):  # Before Friday lunchtime
+    if now.weekday() == 4 and now.time() < lunchtime:   # Before Friday lunchtime
         return True
     return False
 
 def is_odd_week():
-    week_number = datetime.now().isocalendar()[1]  # ISO week number
-    return week_number % 2 != 0
+    """Returns True if the current week number is odd."""
+    return datetime.now().isocalendar()[1] % 2 != 0
 
+def is_garden_waste_collection_period():
+    """Checks if the current week is within the garden waste collection period."""
+    week_number = datetime.now().isocalendar()[1]
+    return GARDEN_WASTE_WEEKS[0] <= week_number <= GARDEN_WASTE_WEEKS[1]
 
-def is_garden_waste_period():
-    week_number = datetime.now().isocalendar()[1]  # ISO week number
-    return GARDEN_WEEKS[0] <= week_number <= GARDEN_WEEKS[1]
-    
+def determine_bin_status():
+    """Determines which bins should be out based on the current week and schedule."""
+    recycling_enabled = not is_odd_week()
+    waste_enabled = is_odd_week()
+    garden_enabled = is_odd_week() and is_garden_waste_collection_period()
+    return recycling_enabled, waste_enabled, garden_enabled
 
-# Check which bins should be out
-recycling_enabled = not is_odd_week()
-waste_enabled = is_odd_week()
-garden_enabled = is_odd_week() and is_garden_waste_period()
+def set_bin_lights(recycling, waste, garden):
+    """Sets the automation hat outputs based on bin status."""
+    automationhat.output[RECYCLING_CHANNEL].write(recycling)
+    automationhat.output[WASTE_CHANNEL].write(waste)
+    automationhat.output[GARDEN_CHANNEL].write(garden)
+    print(f"RECYCLING = {recycling}")
+    print(f"WASTE = {waste}")
+    print(f"GARDEN = {garden}")
 
-# Set lights
-automationhat.output[RECYCLING].write(recycling_enabled)
-automationhat.output[WASTE].write(waste_enabled)
-automationhat.output[GARDEN].write(garden_enabled)
-
-# Report status
-print(f"RECYCLING = {recycling_enabled}")
-print(f"WASTE = {waste_enabled}")
-print(f"GARDEN = {garden_enabled}")
+# Main logic
+if __name__ == "__main__":
+    recycling, waste, garden = determine_bin_status()
+    set_bin_lights(recycling, waste, garden)
