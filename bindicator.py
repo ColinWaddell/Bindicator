@@ -10,14 +10,14 @@ GARDEN_CHANNEL = 2
 GARDEN_WASTE_WEEKS = (11, 49)
 
 
-def is_after_lunchtime_wednesday_or_before_lunchtime_friday():
-    """Checks if it's after Wednesday lunchtime or before Friday lunchtime."""
+def is_after_lunchtime_wednesday_or_before_lunchtime_thursday():
+    """Checks if it's after Wednesday lunchtime or before Thursday lunchtime."""
     now = datetime.now()
     lunchtime = time(12, 0)
 
-    if now.weekday() == 2 and now.time() >= lunchtime:  # Wednesday afternoon
+    if now.weekday() == 2 and now.time() >= lunchtime:  # After Wednesday afternoon
         return True
-    if now.weekday() == 4 and now.time() < lunchtime:  # Before Friday lunchtime
+    if now.weekday() == 3 and now.time() < lunchtime:  # Before Thursday lunchtime
         return True
     return False
 
@@ -36,15 +36,15 @@ def is_garden_waste_collection_period():
 def determine_bin_status():
     """Determines which bins should be out based on the current week and schedule."""
     recycling_enabled = (
-        not is_odd_week() and is_after_lunchtime_wednesday_or_before_lunchtime_friday()
+        not is_odd_week() and is_after_lunchtime_wednesday_or_before_lunchtime_thursday()
     )
     waste_enabled = (
-        is_odd_week() and is_after_lunchtime_wednesday_or_before_lunchtime_friday()
+        is_odd_week() and is_after_lunchtime_wednesday_or_before_lunchtime_thursday()
     )
     garden_enabled = (
         is_odd_week()
         and is_garden_waste_collection_period()
-        and is_after_lunchtime_wednesday_or_before_lunchtime_friday()
+        and is_after_lunchtime_wednesday_or_before_lunchtime_thursday()
     )
     return recycling_enabled, waste_enabled, garden_enabled
 
