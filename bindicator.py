@@ -3,11 +3,11 @@ from datetime import datetime, time
 
 # Channel each light is wired to
 RECYCLING_CHANNEL = 0
-WASTE_CHANNEL = 1
-GARDEN_CHANNEL = 2
+GARDEN_CHANNEL = 1
+WASTE_CHANNEL = 2
 
 # Start and end week numbers for garden waste collection
-GARDEN_WASTE_WEEKS = (11, 49)
+GARDEN_WASTE_WEEKS = (11, 46)
 
 
 def is_after_lunchtime_wednesday_or_before_lunchtime_thursday():
