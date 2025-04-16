@@ -170,3 +170,6 @@ devenv.*
 
 # pre-commit
 .pre-commit-config.yaml
+
+# Custom
+.vscode/

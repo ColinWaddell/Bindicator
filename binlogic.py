@@ -50,9 +50,8 @@ def determine_bin_status():
 
 # Main logic
 if __name__ == "__main__":
-    # Define the number of past and future days to consider
-    past_days = 3
-    future_days = 3
+    first_day = now.replace(day=1)
+    next_month = (first_day.replace(day=28) + datetime.timedelta(days=4)).replace(day=1)
 
     # Get the current date
     current_date = datetime.date.today()
@@ -60,19 +59,19 @@ if __name__ == "__main__":
     print("| Date       | Recycling | Waste | Garden |")
     print("|------------+-----------+-------+--------|")
 
-    # Loop over the past and future days
-    for i in range(-past_days, future_days + 1):
-        # Calculate the date to consider
-        date = current_date + datetime.timedelta(days=i)
+    # Loop over each day
+    d = first_day
+    while d < next_month:
+        d += datetime.timedelta(days=1)
         
         # Update the current datetime for testing purposes
-        update_now(datetime.datetime.combine(date, now.time()))
+        update_now(d)
         
         # Determine the bin status for the current date
         recycling, waste, garden = determine_bin_status()
         
         # Print the bin status for the current date
-        print(f"| {date.isoformat()} |  ", end="")
+        print(f"| {d.date().isoformat()} |  ", end="")
         print("   x     |" if recycling else "         |", end="")
         print("   x   |" if waste else "       |", end="")
         print("    x   |" if garden else "        |")
