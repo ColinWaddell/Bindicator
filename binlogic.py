@@ -3,6 +3,7 @@ import datetime
 
 # Start and end week numbers for garden waste collection
 GARDEN_WASTE_WEEKS = (11, 46)
+WASTE_BIN_EPOCH = datetime.datetime(2025, 4, 15)
 
 now = datetime.datetime.now()
 
@@ -10,6 +11,16 @@ def update_now(new_now):
     """Updates the current datetime for testing purposes."""
     global now
     now = new_now
+
+def is_after_lunchtime_tuesday_or_before_lunchtime_wednesday():
+    """Checks if it's after Wednesday lunchtime or before Thursday lunchtime."""
+    lunchtime = datetime.time(12, 0)
+
+    if now.weekday() == 1 and now.time() >= lunchtime:  # After Wednesday afternoon
+        return True
+    if now.weekday() == 2 and now.time() < lunchtime:  # Before Thursday lunchtime
+        return True
+    return False
 
 def is_after_lunchtime_wednesday_or_before_lunchtime_thursday():
     """Checks if it's after Wednesday lunchtime or before Thursday lunchtime."""
@@ -20,6 +31,15 @@ def is_after_lunchtime_wednesday_or_before_lunchtime_thursday():
     if now.weekday() == 3 and now.time() < lunchtime:  # Before Thursday lunchtime
         return True
     return False
+
+def is_waste_bin_collection_week():
+    # Check how many weeks have passed between this current week and 2025-04-16
+    weeks_passed = (
+        now - WASTE_BIN_EPOCH
+    ).days // 7
+
+    # Check if the number of weeks is divisible by 3
+    return (weeks_passed % 3 == 0)
 
 
 def is_odd_week():
@@ -39,7 +59,7 @@ def determine_bin_status():
         not is_odd_week() and is_after_lunchtime_wednesday_or_before_lunchtime_thursday()
     )
     waste_enabled = (
-        is_odd_week() and is_after_lunchtime_wednesday_or_before_lunchtime_thursday()
+        is_waste_bin_collection_week() and is_after_lunchtime_tuesday_or_before_lunchtime_wednesday()
     )
     garden_enabled = (
         is_odd_week()
@@ -51,17 +71,16 @@ def determine_bin_status():
 # Main logic
 if __name__ == "__main__":
     first_day = now.replace(day=1)
-    next_month = (first_day.replace(day=28) + datetime.timedelta(days=4)).replace(day=1)
 
     # Get the current date
     current_date = datetime.date.today()
 
-    print("| Date       | Recycling | Waste | Garden |")
-    print("|------------+-----------+-------+--------|")
+    print("| Date       | Waste | Recycling | Garden |")
+    print("|------------+-------+-----------+--------|")
 
     # Loop over each day
     d = first_day
-    while d < next_month:
+    for _ in range(60):  # Loop for 60 days
         d += datetime.timedelta(days=1)
         
         # Update the current datetime for testing purposes
@@ -72,6 +91,6 @@ if __name__ == "__main__":
         
         # Print the bin status for the current date
         print(f"| {d.date().isoformat()} |  ", end="")
-        print("   x     |" if recycling else "         |", end="")
-        print("   x   |" if waste else "       |", end="")
+        print(" x   |" if waste else "     |", end="")
+        print("     x     |" if recycling else "           |", end="")
         print("    x   |" if garden else "        |")
